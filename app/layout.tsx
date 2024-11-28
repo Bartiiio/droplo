@@ -14,20 +14,22 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="pl">
-         <Toaster
-            position="top-center"
-            gutter={12}
-            containerStyle={{ margin: "8px" }}
-            toastOptions={{
-               success: {
-                  duration: 3000,
-               },
-               error: {
-                  duration: 5000,
-               },
-            }}
-         />
-         <body className="max-w-[1208px] mx-auto rounded-md">{children}</body>
+         <body className="font-sans">
+            <Toaster
+               position="top-center"
+               gutter={12}
+               containerStyle={{ margin: "8px" }}
+               toastOptions={{
+                  success: {
+                     duration: 3000,
+                  },
+                  error: {
+                     duration: 5000,
+                  },
+               }}
+            />
+            {children}
+         </body>
       </html>
    );
 }

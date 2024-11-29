@@ -30,6 +30,7 @@ type StoreState = {
       link: string
    ) => void;
    deleteSubItem: (parentId: string, subItemId: string) => void;
+   dndEditPosition: (items: MenuItem[]) => void;
 };
 
 const useStore = create<StoreState>((set) => ({
@@ -53,11 +54,13 @@ const useStore = create<StoreState>((set) => ({
             item.id === id ? { ...item, ...updates } : item
          );
 
-         const sortedItems = updatedItems.sort(
-            (a, b) => a.position - b.position
-         );
-         return { items: sortedItems };
+         return { items: updatedItems };
       }),
+
+   dndEditPosition: (newItems) =>
+      set(() => ({
+         items: newItems,
+      })),
 
    deleteItem: (id) =>
       set((state) => {

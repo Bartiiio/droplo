@@ -14,6 +14,7 @@ interface ListItemProps {
    menuName: string;
    menuLink: string;
    subitems?: SubItem[];
+   isDragging: boolean;
 }
 
 type FormValues = {
@@ -25,6 +26,7 @@ export function ListItem({
    id,
    menuName,
    menuLink,
+   isDragging,
    subitems = [],
 }: ListItemProps) {
    const store = useStore();
@@ -123,48 +125,50 @@ export function ListItem({
 
    return (
       <>
-         <div
-            ref={setNodeRef}
-            {...attributes}
-            {...listeners}
-            style={style}
-            className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6"
-         >
-            <div className="flex items-center p-3">
-               <IoIosMove size={24} className="ml-4 text-center cursor-move" />
-               <div className="ml-6 flex-col">
-                  <p className="font-bold py-2">{menuName}</p>
-                  <a href={menuLink} className="text-link py-2">
-                     {shortenLink(menuLink)}
-                  </a>
+         <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
+            <div className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6">
+               <div className="flex items-center p-3">
+                  <IoIosMove
+                     size={24}
+                     className="ml-4 text-center cursor-move"
+                  />
+                  <div className="ml-6 flex-col">
+                     <p className="font-bold py-2">{menuName}</p>
+                     <a href={menuLink} className="text-link py-2">
+                        {shortenLink(menuLink)}
+                     </a>
+                  </div>
+               </div>
+               <div className="mx-4 border-2 text-text-button-dark font-bold rounded-lg flex">
+                  <button
+                     onClick={() => setOpenDialog(true)}
+                     className="px-3 py-2"
+                  >
+                     Usuń
+                  </button>
+                  <button
+                     onClick={() => setEdit((prevState) => !prevState)}
+                     className="relative px-3 py-2 h-full border-x-2"
+                  >
+                     Edytuj
+                  </button>
+                  <button
+                     disabled={subitems.length > 0}
+                     onClick={() => setSubmenu((prevState) => !prevState)}
+                     className={`px-3 py-2 ${
+                        subitems.length > 0 ? "cursor-not-allowed" : ""
+                     }`}
+                  >
+                     Dodaj podpozycję menu
+                  </button>
                </div>
             </div>
-            <div className="mx-4 border-2 text-text-button-dark font-bold rounded-lg flex">
-               <button
-                  onClick={() => setOpenDialog(true)}
-                  className="px-3 py-2"
-               >
-                  Usuń
-               </button>
-               <button
-                  onClick={() => setEdit((prevState) => !prevState)}
-                  className="relative px-3 py-2 h-full border-x-2"
-               >
-                  Edytuj
-               </button>
-               <button
-                  disabled={subitems.length > 0}
-                  onClick={() => setSubmenu((prevState) => !prevState)}
-                  className={`px-3 py-2 ${
-                     subitems.length > 0 ? "cursor-not-allowed" : ""
+            {subitems.length > 0 && (
+               <div
+                  className={`flex flex-col ml-16 border-2 border-border-default rounded-md p-2 mt-2 transition-all duration-1000 ${
+                     isDragging && "hidden"
                   }`}
                >
-                  Dodaj podpozycję menu
-               </button>
-            </div>
-
-            {subitems.length > 0 && (
-               <div className="flex flex-col ml-16 border-2 border-border-default rounded-md p-2 mt-2">
                   {subitems.map((element) => (
                      <div
                         className="flex items-center p-3 pr-0 w-full justify-between"

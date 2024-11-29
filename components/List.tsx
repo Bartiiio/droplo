@@ -7,11 +7,14 @@ import {
    useSensor,
    useSensors,
 } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { useState } from "react";
 
 export default function List() {
    const store = useStore();
+
+   const [isDragging, setIsDragging] = useState(false);
 
    const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -24,61 +27,16 @@ export default function List() {
    const handleDragEnd = (event: DragEndEvent) => {
       const { active, over } = event;
 
-      if (!over) return;
-
-      const activeItemId = active.id as string;
-      const overItemId = over.id as string;
-      console.log("Active item:", activeItemId);
-      console.log("Over item:", overItemId);
-
-      const items = useStore.getState().items;
-
-      const activeItem = items.find((item) => item.id === activeItemId);
-      const overItem = items.find((item) => item.id === overItemId);
-
-      if (!activeItem || !overItem) return;
-
-      if (activeItem.id !== overItem.id) {
-         const activeItemIndex = items.findIndex(
-            (item) => item.id === activeItem.id
+      if (active.id !== over?.id) {
+         console.log(store.items);
+         const oldIndex = store.items.findIndex(
+            (item) => item.id === active.id
          );
-         const overItemIndex = items.findIndex(
-            (item) => item.id === overItem.id
-         );
+         const newIndex = store.items.findIndex((item) => item.id === over?.id);
 
-         useStore.getState().editItem(activeItem.id, {
-            position: overItemIndex + 1,
-         });
-         useStore.getState().editItem(overItem.id, {
-            position: activeItemIndex + 1,
-         });
-      } else {
-         const activeSubItem = activeItem.subItems?.find(
-            (subItem) => subItem.id === activeItemId
-         );
-         const overSubItem = overItem.subItems?.find(
-            (subItem) => subItem.id === overItemId
-         );
-
-         if (activeSubItem && overSubItem) {
-            useStore
-               .getState()
-               .editSubItem(
-                  activeItem.id,
-                  activeSubItem.id || "",
-                  activeSubItem.menuName || "",
-                  activeSubItem.menuLink || ""
-               );
-            useStore
-               .getState()
-               .editSubItem(
-                  activeItem.id,
-                  overSubItem.id || "",
-                  overSubItem.menuName || "",
-                  overSubItem.menuLink || ""
-               );
-         }
+         store.dndEditPosition(arrayMove(store.items, oldIndex, newIndex));
       }
+      setIsDragging(false);
    };
 
    return (
@@ -87,20 +45,19 @@ export default function List() {
             sensors={sensors}
             modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
+            onDragStart={() => setIsDragging(true)}
          >
             <SortableContext items={store.items.map((item) => item.id)}>
-               {store.items
-                  .slice()
-                  .reverse()
-                  .map((element) => (
-                     <ListItem
-                        id={element.id}
-                        key={element.id}
-                        menuName={element.menuName}
-                        menuLink={element.menuLink}
-                        subitems={element.subItems}
-                     />
-                  ))}
+               {store.items.map((element) => (
+                  <ListItem
+                     id={element.id}
+                     key={element.id}
+                     menuName={element.menuName}
+                     menuLink={element.menuLink}
+                     subitems={element.subItems}
+                     isDragging={isDragging}
+                  />
+               ))}
             </SortableContext>
          </DndContext>
       </div>

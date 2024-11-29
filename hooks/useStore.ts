@@ -11,6 +11,7 @@ type MenuItem = {
    menuName: string;
    menuLink: string;
    subItems: SubItem[];
+   position: number;
 };
 
 type StoreState = {
@@ -33,107 +34,90 @@ type StoreState = {
 
 const useStore = create<StoreState>((set) => ({
    items: [],
-
    addItem: (item) =>
-      set((state) => ({
-         items: [
-            ...state.items,
-            {
-               id: crypto.randomUUID(),
-               ...item,
-               subItems: [],
-               position: state.items.length + 1,
-            },
-         ],
-      })),
+      set((state) => {
+         const newItem = {
+            id: crypto.randomUUID(),
+            ...item,
+            subItems: [],
+            position: state.items.length + 1,
+         };
+         return {
+            items: [...state.items, newItem],
+         };
+      }),
 
    editItem: (id, updates) =>
-      set((state) => ({
-         items: state.items.map((item) =>
+      set((state) => {
+         const updatedItems = state.items.map((item) =>
             item.id === id ? { ...item, ...updates } : item
-         ),
-      })),
+         );
+
+         const sortedItems = updatedItems.sort(
+            (a, b) => a.position - b.position
+         );
+         return { items: sortedItems };
+      }),
 
    deleteItem: (id) =>
-      set((state) => ({
-         items: state.items.filter((item) => item.id !== id),
-      })),
+      set((state) => {
+         const filteredItems = state.items.filter((item) => item.id !== id);
+
+         const sortedItems = filteredItems.sort(
+            (a, b) => a.position - b.position
+         );
+         return { items: sortedItems };
+      }),
 
    addSubItem: (parentId, subItem) => {
       set((state) => {
          const parentItem = state.items.find((item) => item.id === parentId);
-
-         if (!parentItem) {
+         if (!parentItem)
             throw new Error("Nie znaleziono elementu nadrzędnego");
-         }
 
-         if (parentItem.subItems?.length >= 1) {
-            throw new Error("Osiągnięto maksymalną liczbę podelementów");
-         }
+         const newSubItem = { id: crypto.randomUUID(), ...subItem };
+         const updatedSubItems = [...(parentItem.subItems || []), newSubItem];
 
-         return {
-            items: state.items.map((item) =>
-               item.id === parentId
-                  ? {
-                       ...item,
-                       subItems: [
-                          ...(item.subItems || []),
-                          { id: crypto.randomUUID(), ...subItem },
-                       ],
-                    }
-                  : item
-            ),
-         };
+         const updatedItems = state.items.map((item) =>
+            item.id === parentId ? { ...item, subItems: updatedSubItems } : item
+         );
+
+         return { items: updatedItems };
       });
    },
 
    editSubItem: (parentId, subItemId, name, link) =>
       set((state) => {
          const parentItem = state.items.find((item) => item.id === parentId);
-         if (!parentItem) {
-            throw new Error("Nie znaleziono elementu");
-         }
-         const subItem = parentItem.subItems.find((s) => s.id === subItemId);
-         if (!subItem) {
-            throw new Error("Nie znaleziono podelementu");
-         }
-         return {
-            items: state.items.map((item) =>
-               item.id === parentId
-                  ? {
-                       ...item,
-                       subItems: item.subItems.map((subItem) =>
-                          subItem.id === subItemId
-                             ? { ...subItem, menuName: name, menuLink: link }
-                             : subItem
-                       ),
-                    }
-                  : item
-            ),
-         };
+         if (!parentItem) throw new Error("Nie znaleziono elementu");
+
+         const updatedSubItems = parentItem.subItems.map((subItem) =>
+            subItem.id === subItemId
+               ? { ...subItem, menuName: name, menuLink: link }
+               : subItem
+         );
+
+         const updatedItems = state.items.map((item) =>
+            item.id === parentId ? { ...item, subItems: updatedSubItems } : item
+         );
+
+         return { items: updatedItems };
       }),
 
    deleteSubItem: (parentId, subItemId) =>
       set((state) => {
          const parentItem = state.items.find((item) => item.id === parentId);
-         if (!parentItem) {
-            throw new Error("Nie znaleziono elementu nadrzędnego");
-         }
-         if (!parentItem.subItems.find((subItem) => subItem.id === subItemId)) {
-            throw new Error("Nie znaleziono podelementu");
-         }
-         return {
-            items: state.items.map((item) =>
-               item.id === parentId
-                  ? {
-                       ...item,
-                       subItems: item.subItems.filter(
-                          (subItem) => subItem.id !== subItemId
-                       ),
-                    }
-                  : item
-            ),
-         };
+         if (!parentItem) throw new Error("Nie znaleziono elementu");
+
+         const updatedSubItems = parentItem.subItems.filter(
+            (subItem) => subItem.id !== subItemId
+         );
+
+         const updatedItems = state.items.map((item) =>
+            item.id === parentId ? { ...item, subItems: updatedSubItems } : item
+         );
+
+         return { items: updatedItems };
       }),
 }));
 

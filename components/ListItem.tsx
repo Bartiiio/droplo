@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { CiSearch } from "react-icons/ci";
 import DialogWindow from "./DialogWindow";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ListItemProps {
    id: string;
@@ -26,6 +28,10 @@ export function ListItem({
    subitems = [],
 }: ListItemProps) {
    const store = useStore();
+
+   const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: id });
+
    const [openDialog, setOpenDialog] = useState(false);
    const [edit, setEdit] = useState(false);
    const [submenu, setSubmenu] = useState(false);
@@ -110,9 +116,20 @@ export function ListItem({
       }
    };
 
+   const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+   };
+
    return (
       <>
-         <div className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6">
+         <div
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            style={style}
+            className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6"
+         >
             <div className="flex items-center p-3">
                <IoIosMove size={24} className="ml-4 text-center cursor-move" />
                <div className="ml-6 flex-col">
@@ -145,51 +162,56 @@ export function ListItem({
                   Dodaj podpozycję menu
                </button>
             </div>
+
+            {subitems.length > 0 && (
+               <div className="flex flex-col ml-16 border-2 border-border-default rounded-md p-2 mt-2">
+                  {subitems.map((element) => (
+                     <div
+                        className="flex items-center p-3 pr-0 w-full justify-between"
+                        key={element.id}
+                     >
+                        <div className="ml-6 flex-col">
+                           <p className="font-bold py-2">{element.menuName}</p>
+                           <a
+                              href={element.menuLink}
+                              className="text-link py-2"
+                           >
+                              {shortenLink(element.menuLink)}
+                           </a>
+                        </div>
+                        <div className="mx-4 border-2 text-text-button-dark font-bold rounded-lg flex">
+                           <button
+                              onClick={() => {
+                                 setSubItemToDelete(element.id);
+                                 setOpenDialog(true);
+                              }}
+                              className="px-3 py-2"
+                           >
+                              Usuń
+                           </button>
+
+                           <button
+                              onClick={() => {
+                                 setSubmenu(!submenu);
+                                 setEditingSubItemId(element.id || undefined);
+                              }}
+                              className="relative px-3 py-2 h-full border-l-2"
+                           >
+                              Edytuj
+                           </button>
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            )}
          </div>
-
-         {subitems.length > 0 && (
-            <div className="flex items-center border-border-default border-2 rounded-md p-2 ml-16 border-t-0">
-               {subitems.map((element) => (
-                  <div
-                     className="flex items-center p-3 pr-0 w-full justify-between"
-                     key={element.id}
-                  >
-                     <div className="ml-6 flex-col">
-                        <p className="font-bold py-2">{element.menuName}</p>
-                        <a href={element.menuLink} className="text-link py-2">
-                           {shortenLink(element.menuLink)}
-                        </a>
-                     </div>
-                     <div className="mx-4 border-2 text-text-button-dark font-bold rounded-lg flex">
-                        <button
-                           onClick={() => {
-                              setSubItemToDelete(element.id);
-                              setOpenDialog(true);
-                           }}
-                           className="px-3 py-2"
-                        >
-                           Usuń
-                        </button>
-
-                        <button
-                           onClick={() => {
-                              setSubmenu(true);
-                              setEditingSubItemId(element.id || undefined);
-                           }}
-                           className="relative px-3 py-2 h-full border-l-2"
-                        >
-                           Edytuj
-                        </button>
-                     </div>
-                  </div>
-               ))}
-            </div>
-         )}
 
          {(edit || submenu) && (
             <div>
                <h1 className="text-xl font-bold ml-4 mt-4">
-                  {submenu ? "Edytuj podpozycję" : "Edytuj pozycję menu"}
+                  {subitems.length > 0 ? "Edytuj podpozycję " : ""}
+                  {subitems.length == 0 ? "Dodaj podpozycję" : ""}
+                  {edit ? "Edytuj pozycję" : ""}
                </h1>
                <form
                   onSubmit={handleSubmit((data) =>

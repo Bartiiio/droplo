@@ -3,7 +3,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-   title: "Droplo",
+   title: "Droplo - Bartosz Troń",
    description: "Rekrutacja Droplo Bartosz Troń",
 };
 

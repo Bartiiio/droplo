@@ -68,6 +68,7 @@ export function ListItem({
          store.deleteSubItem(id, subItemToDelete);
          toast.success("Usunięto podpozycję!");
          setOpenDialog(false);
+         setSubItemToDelete(undefined);
       }
    };
 

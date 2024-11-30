@@ -10,6 +10,7 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function List() {
    const store = useStore();
@@ -28,7 +29,6 @@ export default function List() {
       const { active, over } = event;
 
       if (active.id !== over?.id) {
-         console.log(store.items);
          const oldIndex = store.items.findIndex(
             (item) => item.id === active.id
          );
@@ -37,6 +37,7 @@ export default function List() {
          store.dndEditPosition(arrayMove(store.items, oldIndex, newIndex));
       }
       setIsDragging(false);
+      toast.success("Zmieniono kolejność elementów");
    };
 
    return (

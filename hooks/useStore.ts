@@ -16,7 +16,7 @@ type MenuItem = {
 
 type StoreState = {
    items: MenuItem[];
-   addItem: (item: Omit<MenuItem, "id" | "subItems">) => void;
+   addItem: (item: Omit<MenuItem, "id" | "subItems" | "position">) => void;
    editItem: (
       id: string,
       updates: Partial<Omit<MenuItem, "id" | "subItems">>

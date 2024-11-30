@@ -126,7 +126,7 @@ export function ListItem({
    return (
       <>
          <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
-            <div className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6">
+            <div className="flex items-center justify-between border-border-default border-2 rounded-md p-2 mt-6 relative">
                <div className="flex items-center p-3">
                   <IoIosMove
                      size={24}
@@ -165,8 +165,8 @@ export function ListItem({
             </div>
             {subitems.length > 0 && (
                <div
-                  className={`flex flex-col ml-16 border-2 border-border-default rounded-md p-2 mt-2 transition-all duration-1000 ${
-                     isDragging && "hidden"
+                  className={`flex flex-col ml-16 border-2 border-border-default rounded-md p-2 border-t-0 ${
+                     isDragging ? "absolute opacity-0" : ""
                   }`}
                >
                   {subitems.map((element) => (

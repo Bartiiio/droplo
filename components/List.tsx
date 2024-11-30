@@ -11,9 +11,22 @@ import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { Button } from "./ui/button";
 
 export default function List() {
    const store = useStore();
+   const inputRef = store.inputRef;
+
+   const fucusInputClick = () => {
+      if (inputRef) {
+         inputRef.focus();
+         window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "smooth",
+         });
+      }
+   };
 
    const [isDragging, setIsDragging] = useState(false);
 
@@ -61,6 +74,14 @@ export default function List() {
                ))}
             </SortableContext>
          </DndContext>
+         <div className=" bottom-2 inline-block w-full mt-6">
+            <Button
+               onClick={fucusInputClick}
+               className="border-border-default border-2 text-black bg-transparent hover:bg-transparent"
+            >
+               Dodaj więcej pozycji...
+            </Button>
+         </div>
       </div>
    );
 }

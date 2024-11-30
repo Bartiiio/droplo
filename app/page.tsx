@@ -10,6 +10,7 @@ import { motion } from "motion/react";
 
 export default function Home() {
    const store = useStore();
+
    return (
       <div className="mx-6 min-h-full">
          <div className="bg-background-grey mt-6 rounded-md mb-6 pb-4 max-w-[1208px] mx-auto">
@@ -66,7 +67,11 @@ export default function Home() {
                   ease: "easeOut",
                }}
             >
-               <div className="p-8 m-6 rounded-md bg-white">
+               <div
+                  className={`p-8 m-6 rounded-md bg-white relative ${
+                     store.items.length ? "min-h-[350px]" : ""
+                  }`}
+               >
                   <h1 className="font-bold text-2xl mb-4">Pozycje menu</h1>
                   {store.items.length ? <List /> : <Menu />}
                </div>

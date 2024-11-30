@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { motion } from "motion/react";
 import toast from "react-hot-toast";
 import { CiSearch } from "react-icons/ci";
+import { useEffect } from "react";
 
 type FormValues = {
    menuName: string;
@@ -11,6 +12,8 @@ type FormValues = {
 
 export default function ListAdd() {
    const store = useStore();
+
+   const setInputRef = store.setInputRef;
 
    const {
       register,
@@ -33,6 +36,14 @@ export default function ListAdd() {
 
    const menuLinkValue = watch("menuLink", "");
 
+   useEffect(() => {
+      const inputElement = document.getElementById(
+         "menuNameInput"
+      ) as HTMLInputElement;
+      setInputRef(inputElement);
+      return () => setInputRef(null);
+   }, [setInputRef]);
+
    return (
       <motion.div
          initial={{ x: "-100%", opacity: 0 }}
@@ -52,6 +63,7 @@ export default function ListAdd() {
             <h2 className="mb-1">Menu</h2>
             <input
                type="text"
+               id="menuNameInput"
                placeholder="np. Menu główne"
                className={`border p-2 rounded-md w-full mb-2 ${
                   errors.menuName ? "border-red-500" : "border-border-default"

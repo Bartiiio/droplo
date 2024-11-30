@@ -15,6 +15,9 @@ type MenuItem = {
 };
 
 type StoreState = {
+   inputRef: HTMLInputElement | null;
+   setInputRef: (ref: HTMLInputElement | null) => void;
+
    items: MenuItem[];
    addItem: (item: Omit<MenuItem, "id" | "subItems" | "position">) => void;
    editItem: (
@@ -34,6 +37,9 @@ type StoreState = {
 };
 
 const useStore = create<StoreState>((set) => ({
+   inputRef: null,
+   setInputRef: (ref) => set({ inputRef: ref }),
+
    items: [],
    addItem: (item) =>
       set((state) => {
